@@ -1,0 +1,907 @@
+---
+title: 'Final Project Analysis'
+author:
+  affiliation: 'Case Western Reserve University'
+  email: 'sophia.ribeiro@case.edu'
+  name: 'Phia Ribeiro'
+date: '`r format(Sys.Date())`'
+output:
+  html_document:
+    theme: 'united'
+    highlight: 'tango'
+    df_print: 'paged'
+    toc: yes
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+    code_folding: 'hide'
+abstract: This is a template for starting a gene expression analysis using a mardown
+  document, by creating an Eset from a sample annotation file and an expression matrix.
+---
+
+```{r setup, include=FALSE}
+suppressPackageStartupMessages(library(knitr))
+knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_chunk$set(warning = FALSE
+                     , message     = FALSE
+                     , warning     = FALSE
+                     , echo        = FALSE
+                     , cache       = FALSE
+                     , strip.white = TRUE)
+ 
+```
+
+# Introduction {.tabset}
+
+## Aims
+
+**Objective:**
+
+**A.**
+
+**B.**
+
+**C.**
+
+## Background
+
+## Overall Design
+
+# Analysis {.tabset}
+
+```{r library_install}
+BiocManager::install("SingleR")
+BiocManager::install("celldex")
+BiocManager::install("SummarizedExperiment")
+BiocManager::install("clusterProfiler")
+```
+
+```{r libraries}
+library(tidyverse)
+library(Seurat)
+library(ggplot2)
+if (!requireNamespace("Biobase", quietly = TRUE)) {
+  install.packages("BiocManager")
+  BiocManager::install("Biobase")
+}
+library(Biobase)
+library(SingleR)
+library(celldex)
+library(SummarizedExperiment)
+library(grid)
+library(ggrepel)
+library(clusterProfiler)
+library(org.Hs.eg.db)
+set.seed(42)
+```
+
+REPEAT FOR EACH SAMPLE
+
+```{r data_loading}
+matrix_dir1_1 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846700"
+matrix_dir1_2 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846714"
+
+counts1_1 <- Read10X(data.dir = matrix_dir1_1)
+colnames(counts1_1) <- paste0("SRR25846700_", colnames(counts1_1))
+counts1_2 <- Read10X(data.dir = matrix_dir1_2)
+colnames(counts1_2) <- paste0("SRR25846714_", colnames(counts1_2))
+
+counts1 <- cbind(counts1_1, counts1_2)
+
+sample1 <- CreateSeuratObject(counts = counts1, project = "S7",
+                                 min.cells = 3, min.features = 200)
+sample1$sample <- "7"
+
+sample1$condition <- "pre"
+
+sample1$timepoint <- "pre"
+
+
+matrix_dir2_1 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846702"
+matrix_dir2_2 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846701"
+
+counts2_1 <- Read10X(data.dir = matrix_dir2_1)
+colnames(counts2_1) <- paste0("SRR25846702_", colnames(counts2_1))
+counts2_2 <- Read10X(data.dir = matrix_dir2_2)
+colnames(counts2_2) <- paste0("SRR25846701_", colnames(counts2_2))
+
+counts2 <- cbind(counts2_1, counts2_2)
+
+sample2 <- CreateSeuratObject(counts = counts2, project = "S5",
+                                 min.cells = 3, min.features = 200)
+sample2$sample <- "5"
+
+sample2$condition <- "postAE"
+
+sample2$timepoint <- "post"
+
+
+matrix_dir3 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846703"
+
+counts3 <- Read10X(data.dir = matrix_dir3)
+
+sample3 <- CreateSeuratObject(counts = counts3, project = "S4",
+                                 min.cells = 3, min.features = 200)
+sample3$sample <- "4"
+
+sample3$condition <- "pre"
+
+sample3$timepoint <- "pre"
+
+
+matrix_dir4_1 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846705"
+matrix_dir4_2 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846704"
+
+counts4_1 <- Read10X(data.dir = matrix_dir4_1)
+colnames(counts4_1) <- paste0("SRR25846705_", colnames(counts4_1))
+counts4_2 <- Read10X(data.dir = matrix_dir4_2)
+colnames(counts4_2) <- paste0("SRR25846704_", colnames(counts4_2))
+
+counts4 <- cbind(counts4_1, counts4_2)
+
+sample4 <- CreateSeuratObject(counts = counts4, project = "S3",
+                                 min.cells = 3, min.features = 200)
+sample4$sample <- "3"
+
+sample4$condition <- "pre"
+
+sample4$timepoint <- "pre"
+
+
+matrix_dir5_1 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846708"
+matrix_dir5_2 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846706"
+
+counts5_1 <- Read10X(data.dir = matrix_dir5_1)
+colnames(counts5_1) <- paste0("SRR25846708_", colnames(counts5_1))
+counts5_2 <- Read10X(data.dir = matrix_dir5_2)
+colnames(counts5_2) <- paste0("SRR25846706_", colnames(counts5_2))
+
+counts5 <- cbind(counts5_1, counts5_2)
+
+sample5 <- CreateSeuratObject(counts = counts5, project = "S2",
+                                 min.cells = 3, min.features = 200)
+sample5$sample <- "2"
+
+sample5$condition <- "postAE"
+
+sample5$timepoint <- "post"
+
+
+matrix_dir6_1 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846709"
+matrix_dir6_2 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846707"
+
+counts6_1 <- Read10X(data.dir = matrix_dir6_1)
+colnames(counts6_1) <- paste0("SRR25846709_", colnames(counts6_1))
+counts6_2 <- Read10X(data.dir = matrix_dir6_2)
+colnames(counts6_2) <- paste0("SRR25846707_", colnames(counts6_2))
+
+counts6 <- cbind(counts6_1, counts6_2)
+
+sample6 <- CreateSeuratObject(counts = counts6, project = "S15",
+                                 min.cells = 3, min.features = 200)
+sample6$sample <- "15"
+
+sample6$condition <- "post"
+
+sample6$timepoint <- "post"
+
+
+matrix_dir7_1 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846711"
+matrix_dir7_2 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846710"
+
+counts7_1 <- Read10X(data.dir = matrix_dir7_1)
+colnames(counts7_1) <- paste0("SRR25846711_", colnames(counts7_1))
+counts7_2 <- Read10X(data.dir = matrix_dir7_2)
+colnames(counts7_2) <- paste0("SRR25846710_", colnames(counts7_2))
+
+counts7 <- cbind(counts7_1, counts7_2)
+
+sample7 <- CreateSeuratObject(counts = counts7, project = "S13",
+                                 min.cells = 3, min.features = 200)
+sample7$sample <- "13"
+
+sample7$condition <- "pre"
+
+sample7$timepoint <- "pre"
+
+
+matrix_dir8_1 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846712"
+matrix_dir8_2 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846713"
+
+counts8_1 <- Read10X(data.dir = matrix_dir8_1)
+colnames(counts8_1) <- paste0("SRR25846712_", colnames(counts8_1))
+counts8_2 <- Read10X(data.dir = matrix_dir8_2)
+colnames(counts8_2) <- paste0("SRR25846713_", colnames(counts8_2))
+
+counts8 <- cbind(counts8_1, counts8_2)
+
+sample8 <- CreateSeuratObject(counts = counts8, project = "S9",
+                                 min.cells = 3, min.features = 200)
+sample8$sample <- "9"
+
+sample8$condition <- "post"
+
+sample8$timepoint <- "post"
+
+
+matrix_dir9_1 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846716"
+matrix_dir9_2 <- "C:/Users/sophi/OneDrive/Documents/PhD/Classes/SYBB/SYBB 412/GroupProject/Data/SRR25846715"
+
+counts9_1 <- Read10X(data.dir = matrix_dir9_1)
+colnames(counts9_1) <- paste0("SRR25846716_", colnames(counts9_1))
+counts9_2 <- Read10X(data.dir = matrix_dir9_2)
+colnames(counts9_2) <- paste0("SRR25846715_", colnames(counts9_2))
+
+counts9 <- cbind(counts9_1, counts9_2)
+
+sample9 <- CreateSeuratObject(counts = counts9, project = "S1",
+                                 min.cells = 3, min.features = 200)
+sample9$sample <- "1"
+
+sample9$condition <- "post"
+
+sample9$timepoint <- "post"
+```
+
+```{r combine}
+combined <- merge(sample1,
+                  y = list(sample2, sample3, sample4, sample5, sample6,
+                           sample7, sample8, sample9),
+                  add.cell.ids = c("S7", "S5", "S4", "S3", "S2", "S15", "S13",
+                                   "S9", "S1"),
+                  project = "FinalProject")
+combined <- JoinLayers(combined)
+```
+
+```{r remove_extra1}
+rm(counts1, counts2, counts3, counts4, counts5, counts6, counts7, counts8,
+   counts9, counts1_1, counts1_2, counts2_1, counts2_2, counts4_1, counts4_2,
+   counts5_1, counts5_2, counts6_1, counts6_2, counts7_1, counts7_2, counts8_1,
+   counts8_2, counts9_1, counts9_2, sample1, sample2, sample3, sample4, sample5,
+   sample6, sample7, sample8, sample9, matrix_dir1_1, matrix_dir1_2,
+   matrix_dir2_1, matrix_dir2_2, matrix_dir3, matrix_dir4_1, matrix_dir4_2,
+   matrix_dir5_1, matrix_dir5_2, matrix_dir6_1, matrix_dir6_2, matrix_dir7_1,
+   matrix_dir7_2, matrix_dir8_1, matrix_dir8_2, matrix_dir9_1, matrix_dir9_2)
+```
+
+```{r dimensionality_reduction}
+combined <- NormalizeData(combined)
+combined <- FindVariableFeatures(combined)
+combined <- ScaleData(combined)
+combined <- RunPCA(combined)
+```
+
+```{r choose_PCs}
+ElbowPlot(combined, ndims = 30)
+```
+Based on this ElbowPlot we've chosen to use the PCs from 1:25, as that's about
+where the dimensions level off.
+
+
+## Characterize cell types present
+
+```{r umap for visuals}
+combined <- RunUMAP(combined, dims = 1:25)
+```
+
+```{r clustering_cells}
+combined <- FindNeighbors(combined, dims = 1:25)
+
+combined <- FindClusters(combined, resolution = 0.4)
+
+DimPlot(combined, reduction = "umap", label = TRUE)
+```
+
+```{r cell_type_annotation_prep}
+norm.data <- GetAssayData(combined, slot = "data")
+
+ref <- celldex::HumanPrimaryCellAtlasData()
+```
+
+```{r cluster_level_annotation}
+Idents(combined) <- "seurat_clusters"
+
+cluster_avg <- AverageExpression(combined, return.seurat = FALSE)$RNA
+
+pred_clusters <- SingleR::SingleR(test = cluster_avg, ref = ref, labels = ref$label.main)
+```
+
+```{r assign_labels}
+head(pred_clusters$labels)
+
+cluster_ids <- levels(combined)
+combined@meta.data$SingleR_label <- pred_clusters$labels[match(Idents(combined),
+                                                               cluster_ids)]
+```
+
+```{r labeled_UMAP}
+Idents(combined) <- combined@meta.data$SingleR_label
+
+DimPlot(combined, reduction = "umap", label = TRUE, repel = TRUE) +
+  ggtitle("UMAp by SingleR Cell Type Annotation") +
+  theme_minimal()
+```
+
+```{r subsetting_cell_type}
+t_cells <- subset(combined,
+                  subset = combined@meta.data$SingleR_label == "T_cells")
+b_cells <- subset(combined,
+                  subset = combined@meta.data$SingleR_label == "B_cell")
+monocytes <- subset(combined,
+                    subset = combined@meta.data$SingleR_label == "Monocyte")
+
+```
+
+```{r t_cells_pre_post_noAE_DGE}
+t_cells_prepostnoAE <- subset(t_cells, subset = condition %in% c("pre", "post"))
+Idents(t_cells_prepostnoAE) <- "condition"
+
+dge_results_prepostnoAE_t <- FindMarkers(
+  object = t_cells_prepostnoAE,
+  ident.1 = "pre",
+  ident.2 = "post",
+  logfc.threshold = 0.25,
+  min.pct = 0.1
+)
+```
+
+```{r heatmap_prepostnoAE_tcells}
+top_genes_prepostnoAE <- head(rownames(dge_results_prepostnoAE_t[order(abs(dge_results_prepostnoAE_t$avg_log2FC),
+                                                                     decreasing = TRUE),]),
+                              20)
+
+DoHeatmap(t_cells_prepostnoAE, features = top_genes_prepostnoAE, group.by = "condition") +
+  scale_fill_gradientn(colors = c("blue", "white", "red")) +
+  theme(plot.title = element_text(size = 12),
+        axis.text.y = element_text(size = 6),
+        axis.text.x = element_text(size = 6)) +
+  labs(title = "Top DE Genes in T Cells Between Pre- and On-Treatment Patients Without irAEs",
+       x = "Cells", y = "Genes")
+```
+
+```{r pre_post_t_cells_table}
+dge_results_prepostnoAE_t$gene <- rownames(dge_results_prepostnoAE_t)
+
+top_DEGs_prepost_t <- dge_results_prepostnoAE_t %>%
+  arrange(desc(abs(avg_log2FC))) %>%
+  select(gene, avg_log2FC, p_val_adj) %>%
+  head(20)
+
+table <- gridExtra::tableGrob(top_DEGs_prepost_t)
+
+ggsave("top_DEGs_prepost_t.png", table, width = 8, height = 8, dpi = 300)
+```
+
+```{r t_cells_postAE_DGE}
+t_cells_postAE <- subset(t_cells, subset = condition %in% c("post", "postAE"))
+t_cells_postAE$short_condition <- plyr::revalue(t_cells_postAE$condition,
+                                                c("post" = "Post",
+                                                  "postAE" = "AE"))
+Idents(t_cells_postAE) <- "condition"
+
+dge_results_postAE_t <- FindMarkers(
+  object = t_cells_postAE,
+  ident.1 = "post",
+  ident.2 = "postAE",
+  logfc.threshold = 0.25,
+  min.pct = 0.1
+)
+```
+
+```{r heatmap_postAE_tcells}
+
+top_genes_postAE <- head(rownames(dge_results_postAE_t[order(abs(dge_results_postAE_t$avg_log2FC),
+                                                                  decreasing = TRUE),]),
+                           20)
+
+DoHeatmap(t_cells_postAE, features = top_genes_postAE,
+          group.by = "short_condition") +
+  scale_fill_gradientn(colors = c("blue", "white", "red")) +
+  theme(plot.title = element_text(size = 12),
+        axis.text.y = element_text(size = 6),
+        axis.text.x = element_text(size = 6)) +
+  labs(title = "Top DE Genes in T Cells Between On-Treatment Patients With and Without irAEs",
+       x = "Cells", y = "Genes")
+```
+
+```{r postAE_t_cells_table}
+dge_results_postAE_t$gene <- rownames(dge_results_postAE_t)
+
+top_DEGs_postAE_t <- dge_results_postAE_t %>%
+  arrange(desc(abs(avg_log2FC))) %>%
+  select(gene, avg_log2FC, p_val_adj) %>%
+  head(20)
+
+table <- gridExtra::tableGrob(top_DEGs_postAE_t)
+
+ggsave("top_DEGs_postAE_t.png", table, width = 8, height = 8, dpi = 300)
+```
+
+```{r b_cells_pre_post_noAE_DGE}
+b_cells_prepostnoAE <- subset(b_cells, subset = condition %in% c("pre", "post"))
+Idents(b_cells_prepostnoAE) <- "condition"
+
+dge_results_prepostnoAE_b <- FindMarkers(
+  object = b_cells_prepostnoAE,
+  ident.1 = "pre",
+  ident.2 = "post",
+  logfc.threshold = 0.25,
+  min.pct = 0.1
+)
+```
+
+```{r heatmap_prepostnoAE_bcells}
+top_genes_prepostnoAE <- head(rownames(dge_results_prepostnoAE_b[order(abs(dge_results_prepostnoAE_b$avg_log2FC),
+                                                                     decreasing = TRUE),]),
+                              20)
+
+DoHeatmap(b_cells_prepostnoAE, features = top_genes_prepostnoAE, group.by = "condition") +
+  scale_fill_gradientn(colors = c("blue", "white", "red")) +
+  theme(plot.title = element_text(size = 12),
+        axis.text.y = element_text(size = 6),
+        axis.text.x = element_text(size = 6)) +
+  labs(title = "Top DE Genes in B Cells Between Pre- and On-Treatment Patients Without irAEs",
+       x = "Cells", y = "Genes")
+```
+
+```{r pre_post_b_cells_table}
+dge_results_prepostnoAE_b$gene <- rownames(dge_results_prepostnoAE_b)
+
+top_DEGs_prepost_b <- dge_results_prepostnoAE_b %>%
+  arrange(desc(abs(avg_log2FC))) %>%
+  select(gene, avg_log2FC, p_val_adj) %>%
+  head(20)
+
+table <- gridExtra::tableGrob(top_DEGs_prepost_b)
+
+ggsave("top_DEGs_prepost_b.png", table, width = 8, height = 8, dpi = 300)
+```
+
+```{r b_cells_postAE_DGE}
+b_cells_postAE <- subset(b_cells, subset = condition %in% c("post", "postAE"))
+b_cells_postAE$short_condition <- plyr::revalue(b_cells_postAE$condition,
+                                                c("post" = "Post",
+                                                  "postAE" = "AE"))
+Idents(b_cells_postAE) <- "condition"
+
+dge_results_postAE_b <- FindMarkers(
+  object = b_cells_postAE,
+  ident.1 = "post",
+  ident.2 = "postAE",
+  logfc.threshold = 0.25,
+  min.pct = 0.1
+)
+```
+
+```{r heatmap_postAE_bcells}
+
+top_genes_postAE <- head(rownames(dge_results_postAE_b[order(abs(dge_results_postAE_b$avg_log2FC),
+                                                                  decreasing = TRUE),]),
+                           20)
+
+DoHeatmap(b_cells_postAE, features = top_genes_postAE,
+          group.by = "short_condition") +
+  scale_fill_gradientn(colors = c("blue", "white", "red")) +
+  theme(plot.title = element_text(size = 12),
+        axis.text.y = element_text(size = 6),
+        axis.text.x = element_text(size = 6)) +
+  labs(title = "Top DE Genes in B Cells Between On-Treatment Patients With and Without irAEs",
+       x = "Cells", y = "Genes")
+```
+
+```{r postAE_b_cells_table}
+dge_results_postAE_b$gene <- rownames(dge_results_postAE_b)
+
+top_DEGs_postAE_b <- dge_results_postAE_b %>%
+  arrange(desc(abs(avg_log2FC))) %>%
+  select(gene, avg_log2FC, p_val_adj) %>%
+  head(20)
+
+table <- gridExtra::tableGrob(top_DEGs_postAE_b)
+
+ggsave("top_DEGs_postAE_b.png", table, width = 8, height = 8, dpi = 300)
+```
+
+```{r monocytes_pre_post_noAE_DGE}
+monocytes_prepostnoAE <- subset(monocytes, subset = condition %in% c("pre", "post"))
+Idents(monocytes_prepostnoAE) <- "condition"
+
+dge_results_prepostnoAE_m <- FindMarkers(
+  object = monocytes_prepostnoAE,
+  ident.1 = "pre",
+  ident.2 = "post",
+  logfc.threshold = 0.25,
+  min.pct = 0.1
+)
+```
+
+```{r heatmap_prepostnoAE_monocytes}
+top_genes_prepostnoAE <- head(rownames(dge_results_prepostnoAE_m[order(abs(dge_results_prepostnoAE_m$avg_log2FC),
+                                                                     decreasing = TRUE),]),
+                              20)
+
+DoHeatmap(monocytes_prepostnoAE, features = top_genes_prepostnoAE, group.by = "condition") +
+  scale_fill_gradientn(colors = c("blue", "white", "red")) +
+  theme(plot.title = element_text(size = 12),
+        axis.text.y = element_text(size = 6),
+        axis.text.x = element_text(size = 6)) +
+  labs(title = "Top DE Genes in Monocytes Between Pre- and On-Treatment Patients Without irAEs",
+       x = "Cells", y = "Genes")
+```
+
+```{r pre_post_m_cells_table}
+dge_results_prepostnoAE_m$gene <- rownames(dge_results_prepostnoAE_m)
+
+top_DEGs_prepost_m <- dge_results_prepostnoAE_m %>%
+  arrange(desc(abs(avg_log2FC))) %>%
+  select(gene, avg_log2FC, p_val_adj) %>%
+  head(20)
+
+table <- gridExtra::tableGrob(top_DEGs_prepost_m)
+
+ggsave("top_DEGs_prepost_m.png", table, width = 8, height = 8, dpi = 300)
+```
+
+```{r monocytes_postAE_DGE}
+monocytes_postAE <- subset(monocytes, subset = condition %in% c("post", "postAE"))
+monocytes_postAE$short_condition <- plyr::revalue(monocytes_postAE$condition,
+                                                c("post" = "Post",
+                                                  "postAE" = "AE"))
+Idents(monocytes_postAE) <- "condition"
+
+dge_results_postAE_m <- FindMarkers(
+  object = monocytes_postAE,
+  ident.1 = "post",
+  ident.2 = "postAE",
+  logfc.threshold = 0.25,
+  min.pct = 0.1
+)
+```
+
+```{r heatmap_postAE_monocytes}
+
+top_genes_postAE <- head(rownames(dge_results_postAE_m[order(abs(dge_results_postAE_m$avg_log2FC),
+                                                                  decreasing = TRUE),]),
+                           20)
+
+DoHeatmap(monocytes_postAE, features = top_genes_postAE,
+          group.by = "short_condition") +
+  scale_fill_gradientn(colors = c("blue", "white", "red")) +
+  theme(plot.title = element_text(size = 12),
+        axis.text.y = element_text(size = 6),
+        axis.text.x = element_text(size = 6)) +
+  labs(title = "Top DE Genes in monocytes Between On-Treatment Patients With and Without irAEs",
+       x = "Cells", y = "Genes")
+```
+
+```{r postAE_m_cells_table}
+dge_results_postAE_m$gene <- rownames(dge_results_postAE_m)
+
+top_DEGs_postAE_m <- dge_results_postAE_m %>%
+  arrange(desc(abs(avg_log2FC))) %>%
+  select(gene, avg_log2FC, p_val_adj) %>%
+  head(20)
+
+table <- gridExtra::tableGrob(top_DEGs_postAE_m)
+
+ggsave("top_DEGs_postAE_m.png", table, width = 8, height = 8, dpi = 300)
+```
+
+```{r prepost_volcano_t}
+logfc_threshold <- 0.25
+pval_threshold <- 0.05
+
+t_dge_prepost <- dge_results_prepostnoAE_t %>%
+  mutate(
+    significance = case_when(
+      p_val_adj < pval_threshold & abs(avg_log2FC) >= logfc_threshold ~ "Significant",
+      TRUE ~ "Not Significant"
+    )
+  )
+
+ggplot(t_dge_prepost, aes(x = avg_log2FC, y = -log10(p_val_adj))) +
+  geom_point(aes(color = significance), alpha = 0.6) +
+  scale_color_manual(values = c("gray", "red")) +
+  theme_minimal() +
+  geom_text_repel(data = top_DEGs_prepost_t, aes(label = gene, size = 3,
+                                                 max.overlaps = Inf)) +
+  geom_vline(xintercept = c(-logfc_threshold, logfc_threshold),
+             linetype = "dashed") +
+  geom_hline(yintercept = -log10(pval_threshold), linetype = "dashed") +
+  labs(title = "Volcano Plot of DEGs Between T Cells of Pre- and On-Treatment Patients",
+       x = "log2 Fold Change",
+       y = "-log10 Adjusted P-value")
+```
+
+```{r postAE_volcano_t}
+logfc_threshold <- 0.25
+pval_threshold <- 0.05
+
+t_dge_postAE <- dge_results_postAE_t %>%
+  mutate(
+    significance = case_when(
+      p_val_adj < pval_threshold & abs(avg_log2FC) >= logfc_threshold ~ "Significant",
+      TRUE ~ "Not Significant"
+    )
+  )
+
+ggplot(t_dge_postAE, aes(x = avg_log2FC, y = -log10(p_val_adj))) +
+  geom_point(aes(color = significance), alpha = 0.6) +
+  scale_color_manual(values = c("gray", "red")) +
+  theme_minimal() +
+  geom_text_repel(data = top_DEGs_postAE_t, aes(label = gene, size = 3,
+                                                 max.overlaps = Inf)) +
+  geom_vline(xintercept = c(-logfc_threshold, logfc_threshold),
+             linetype = "dashed") +
+  geom_hline(yintercept = -log10(pval_threshold), linetype = "dashed") +
+  labs(title = "Volcano Plot of DEGs Between T Cells of On-Treatment Patients With and Without irAEs",
+       x = "log2 Fold Change",
+       y = "-log10 Adjusted P-value") +
+  theme(plot.title = element_text(size = 12))
+```
+
+```{r prepost_volcano_b}
+logfc_threshold <- 0.25
+pval_threshold <- 0.05
+
+b_dge_prepost <- dge_results_prepostnoAE_b %>%
+  mutate(
+    significance = case_when(
+      p_val_adj < pval_threshold & abs(avg_log2FC) >= logfc_threshold ~ "Significant",
+      TRUE ~ "Not Significant"
+    )
+  )
+
+ggplot(b_dge_prepost, aes(x = avg_log2FC, y = -log10(p_val_adj))) +
+  geom_point(aes(color = significance), alpha = 0.6) +
+  scale_color_manual(values = c("gray", "red")) +
+  theme_minimal() +
+  geom_text_repel(data = top_DEGs_prepost_b, aes(label = gene, size = 3,
+                                                 max.overlaps = Inf)) +
+  geom_vline(xintercept = c(-logfc_threshold, logfc_threshold),
+             linetype = "dashed") +
+  geom_hline(yintercept = -log10(pval_threshold), linetype = "dashed") +
+  labs(title = "Volcano Plot of DEGs Between B Cells of Pre- and On-Treatment Patients",
+       x = "log2 Fold Change",
+       y = "-log10 Adjusted P-value")
+```
+
+```{r postAE_volcano_b}
+logfc_threshold <- 0.25
+pval_threshold <- 0.05
+
+b_dge_postAE <- dge_results_postAE_b %>%
+  mutate(
+    significance = case_when(
+      p_val_adj < pval_threshold & abs(avg_log2FC) >= logfc_threshold ~ "Significant",
+      TRUE ~ "Not Significant"
+    )
+  )
+
+ggplot(b_dge_postAE, aes(x = avg_log2FC, y = -log10(p_val_adj))) +
+  geom_point(aes(color = significance), alpha = 0.6) +
+  scale_color_manual(values = c("gray", "red")) +
+  theme_minimal() +
+  geom_text_repel(data = top_DEGs_postAE_b, aes(label = gene, size = 3,
+                                                 max.overlaps = Inf)) +
+  geom_vline(xintercept = c(-logfc_threshold, logfc_threshold),
+             linetype = "dashed") +
+  geom_hline(yintercept = -log10(pval_threshold), linetype = "dashed") +
+  labs(title = "Volcano Plot of DEGs Between B Cells of On-Treatment Patients With and Without irAEs",
+       x = "log2 Fold Change",
+       y = "-log10 Adjusted P-value") +
+  theme(plot.title = element_text(size = 12))
+```
+
+```{r prepost_volcano_m}
+logfc_threshold <- 0.25
+pval_threshold <- 0.05
+
+m_dge_prepost <- dge_results_prepostnoAE_m %>%
+  mutate(
+    significance = case_when(
+      p_val_adj < pval_threshold & abs(avg_log2FC) >= logfc_threshold ~ "Significant",
+      TRUE ~ "Not Significant"
+    )
+  )
+
+ggplot(m_dge_prepost, aes(x = avg_log2FC, y = -log10(p_val_adj))) +
+  geom_point(aes(color = significance), alpha = 0.6) +
+  scale_color_manual(values = c("gray", "red")) +
+  theme_minimal() +
+  geom_text_repel(data = top_DEGs_prepost_m, aes(label = gene, size = 3,
+                                                 max.overlaps = Inf)) +
+  geom_vline(xintercept = c(-logfc_threshold, logfc_threshold),
+             linetype = "dashed") +
+  geom_hline(yintercept = -log10(pval_threshold), linetype = "dashed") +
+  labs(title = "Volcano Plot of DEGs Between Monocytes of Pre- and On-Treatment Patients",
+       x = "log2 Fold Change",
+       y = "-log10 Adjusted P-value")
+```
+
+```{r postAE_volcano_m}
+logfc_threshold <- 0.25
+pval_threshold <- 0.05
+
+m_dge_postAE <- dge_results_postAE_m %>%
+  mutate(
+    significance = case_when(
+      p_val_adj < pval_threshold & abs(avg_log2FC) >= logfc_threshold ~ "Significant",
+      TRUE ~ "Not Significant"
+    )
+  )
+
+ggplot(m_dge_postAE, aes(x = avg_log2FC, y = -log10(p_val_adj))) +
+  geom_point(aes(color = significance), alpha = 0.6) +
+  scale_color_manual(values = c("gray", "red")) +
+  theme_minimal() +
+  geom_text_repel(data = top_DEGs_postAE_m, aes(label = gene, size = 3,
+                                                 max.overlaps = Inf)) +
+  geom_vline(xintercept = c(-logfc_threshold, logfc_threshold),
+             linetype = "dashed") +
+  geom_hline(yintercept = -log10(pval_threshold), linetype = "dashed") +
+  labs(title = "Volcano Plot of DEGs Between Monocytes of On-Treatment Patients With and Without irAEs",
+       x = "log2 Fold Change",
+       y = "-log10 Adjusted P-value") +
+  theme(plot.title = element_text(size = 12))
+```
+
+```{r t_cell_prepost_gsea}
+gene_list_prepost_t <- dge_results_prepostnoAE_t$avg_log2FC
+names(gene_list_prepost_t) <- rownames(dge_results_prepostnoAE_t)
+gene_list_prepost_t <- sort(gene_list_prepost_t, decreasing = TRUE)
+
+gsea_result_prepost_t <- gseGO(geneList = gene_list_prepost_t,
+                               OrgDb = org.Hs.eg.db,
+                               ont = "BP",
+                               keyType = "SYMBOL",
+                               verbose = FALSE)
+
+```
+
+```{r gsea_results_prepost_t}
+gsea_prepost_t_table <- as.data.frame(gsea_result_prepost_t) %>%
+  arrange(desc(abs(enrichmentScore))) %>%
+  dplyr::select(Description, enrichmentScore, p.adjust) %>%
+  head(20)
+
+table <- gridExtra::tableGrob(gsea_prepost_t_table)
+
+ggsave("gsea_prepost_t.png", table, width = 10, height = 8, dpi = 300)
+```
+
+```{r t_cell_postAE_gsea}
+gene_list_postAE_t <- dge_results_postAE_t$avg_log2FC
+names(gene_list_postAE_t) <- rownames(dge_results_postAE_t)
+gene_list_postAE_t <- sort(gene_list_postAE_t, decreasing = TRUE)
+
+gsea_result_postAE_t <- gseGO(geneList = gene_list_postAE_t,
+                               OrgDb = org.Hs.eg.db,
+                               ont = "BP",
+                               keyType = "SYMBOL",
+                               verbose = FALSE)
+
+```
+
+```{r gsea_results_postAE_t}
+gsea_postAE_t_table <- as.data.frame(gsea_result_postAE_t) %>%
+  arrange(desc(abs(enrichmentScore))) %>%
+  dplyr::select(Description, enrichmentScore, p.adjust) %>%
+  head(20)
+
+table <- gridExtra::tableGrob(gsea_postAE_t_table)
+
+ggsave("gsea_postAE_t.png", table, width = 12, height = 8, dpi = 300)
+```
+
+```{r b_cell_prepost_gsea}
+gene_list_prepost_b <- dge_results_prepostnoAE_b$avg_log2FC
+names(gene_list_prepost_b) <- rownames(dge_results_prepostnoAE_b)
+gene_list_prepost_b <- sort(gene_list_prepost_b, decreasing = TRUE)
+
+gsea_result_prepost_b <- gseGO(geneList = gene_list_prepost_b,
+                               OrgDb = org.Hs.eg.db,
+                               ont = "BP",
+                               keyType = "SYMBOL",
+                               verbose = FALSE)
+
+```
+
+```{r gsea_results_prepost_b}
+gsea_prepost_b_table <- as.data.frame(gsea_result_prepost_b) %>%
+  arrange(desc(abs(enrichmentScore))) %>%
+  dplyr::select(Description, enrichmentScore, p.adjust) %>%
+  head(20)
+
+table <- gridExtra::tableGrob(gsea_prepost_b_table)
+
+ggsave("gsea_prepost_b.png", table, width = 10, height = 8, dpi = 300)
+```
+
+```{r b_cell_postAE_gsea}
+gene_list_postAE_b <- dge_results_postAE_b$avg_log2FC
+names(gene_list_postAE_b) <- rownames(dge_results_postAE_b)
+gene_list_postAE_b <- sort(gene_list_postAE_b, decreasing = TRUE)
+
+gsea_result_postAE_b <- gseGO(geneList = gene_list_postAE_b,
+                               OrgDb = org.Hs.eg.db,
+                               ont = "BP",
+                               keyType = "SYMBOL",
+                               verbose = FALSE)
+
+```
+
+```{r gsea_results_postAE_b}
+gsea_postAE_b_table <- as.data.frame(gsea_result_postAE_b) %>%
+  arrange(desc(abs(enrichmentScore))) %>%
+  dplyr::select(Description, enrichmentScore, p.adjust) %>%
+  head(20)
+
+table <- gridExtra::tableGrob(gsea_postAE_b_table)
+
+ggsave("gsea_postAE_b.png", table, width = 12, height = 8, dpi = 300)
+```
+
+```{r monocyte_prepost_gsea}
+gene_list_prepost_m <- dge_results_prepostnoAE_m$avg_log2FC
+names(gene_list_prepost_m) <- rownames(dge_results_prepostnoAE_m)
+gene_list_prepost_m <- sort(gene_list_prepost_m, decreasing = TRUE)
+
+gsea_result_prepost_m <- gseGO(geneList = gene_list_prepost_m,
+                               OrgDb = org.Hs.eg.db,
+                               ont = "BP",
+                               keyType = "SYMBOL",
+                               verbose = FALSE)
+
+```
+
+```{r gsea_results_prepost_m}
+gsea_prepost_m_table <- as.data.frame(gsea_result_prepost_m) %>%
+  arrange(desc(abs(enrichmentScore))) %>%
+  dplyr::select(Description, enrichmentScore, p.adjust) %>%
+  head(20)
+
+table <- gridExtra::tableGrob(gsea_prepost_m_table)
+
+ggsave("gsea_prepost_m.png", table, width = 10, height = 8, dpi = 300)
+```
+
+```{r monocyte_postAE_gsea}
+gene_list_postAE_m <- dge_results_postAE_m$avg_log2FC
+names(gene_list_postAE_m) <- rownames(dge_results_postAE_m)
+gene_list_postAE_m <- sort(gene_list_postAE_m, decreasing = TRUE)
+
+gsea_result_postAE_m <- gseGO(geneList = gene_list_postAE_m,
+                               OrgDb = org.Hs.eg.db,
+                               ont = "BP",
+                               keyType = "SYMBOL",
+                               verbose = FALSE)
+
+```
+
+```{r gsea_results_postAE_m}
+gsea_postAE_m_table <- as.data.frame(gsea_result_postAE_m) %>%
+  arrange(desc(abs(enrichmentScore))) %>%
+  dplyr::select(Description, enrichmentScore, p.adjust) %>%
+  head(20)
+
+table <- gridExtra::tableGrob(gsea_postAE_m_table)
+
+ggsave("gsea_postAE_m.png", table, width = 12, height = 8, dpi = 300)
+```
+## Treatment Naive Non-irAE vs Post Treatment Non-irAE
+
+### DGE
+
+### GSEA
+
+
+## Post Treatment irAE vs Post Treatment Non-irAE
+
+### DGE
+
+### GSEA
+
+
+
