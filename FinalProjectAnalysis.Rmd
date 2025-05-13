@@ -3,7 +3,7 @@ title: 'Final Project Analysis'
 author:
   affiliation: 'Case Western Reserve University'
   email: 'sophia.ribeiro@case.edu'
-  name: 'Phia Ribeiro and Alyssa Hansraj
+  name: 'Phia Ribeiro'
 date: '`r format(Sys.Date())`'
 output:
   html_document:
