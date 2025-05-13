@@ -3,7 +3,7 @@ title: 'Final Project Analysis'
 author:
   affiliation: 'Case Western Reserve University'
   email: 'sophia.ribeiro@case.edu'
-  name: 'Phia Ribeiro'
+  name: 'Phia Ribeiro and Alyssa Hansraj
 date: '`r format(Sys.Date())`'
 output:
   html_document:
@@ -16,8 +16,6 @@ output:
       collapsed: false
       smooth_scroll: true
     code_folding: 'hide'
-abstract: This is a template for starting a gene expression analysis using a mardown
-  document, by creating an Eset from a sample annotation file and an expression matrix.
 ---
 
 ```{r setup, include=FALSE}
@@ -31,24 +29,6 @@ knitr::opts_chunk$set(warning = FALSE
                      , strip.white = TRUE)
  
 ```
-
-# Introduction {.tabset}
-
-## Aims
-
-**Objective:**
-
-**A.**
-
-**B.**
-
-**C.**
-
-## Background
-
-## Overall Design
-
-# Analysis {.tabset}
 
 ```{r library_install}
 BiocManager::install("SingleR")
@@ -890,18 +870,4 @@ table <- gridExtra::tableGrob(gsea_postAE_m_table)
 
 ggsave("gsea_postAE_m.png", table, width = 12, height = 8, dpi = 300)
 ```
-## Treatment Naive Non-irAE vs Post Treatment Non-irAE
-
-### DGE
-
-### GSEA
-
-
-## Post Treatment irAE vs Post Treatment Non-irAE
-
-### DGE
-
-### GSEA
-
-
 
